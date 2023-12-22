@@ -1,4 +1,4 @@
-#include <myproject/sample_library.hpp>
+#include <recipe_agent/sample_library.hpp>
 
 int factorial(int input) noexcept
 {
