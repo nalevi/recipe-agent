@@ -34,7 +34,6 @@ target_link_libraries(
   tests
   PRIVATE recipe_agent::recipe_agent_warnings
           recipe_agent::recipe_agent_options
-          recipe_agent::sample_library
           Catch2::Catch2WithMain)
 
 if(WIN32 AND BUILD_SHARED_LIBS)
@@ -66,7 +65,6 @@ target_link_libraries(
   constexpr_tests
   PRIVATE recipe_agent::recipe_agent_warnings
           recipe_agent::recipe_agent_options
-          recipe_agent::sample_library
           Catch2::Catch2WithMain)
 
 catch_discover_tests(
@@ -89,7 +87,6 @@ target_link_libraries(
   relaxed_constexpr_tests
   PRIVATE recipe_agent::recipe_agent_warnings
           recipe_agent::recipe_agent_options
-          recipe_agent::sample_library
           Catch2::Catch2WithMain)
 target_compile_definitions(relaxed_constexpr_tests PRIVATE -DCATCH_CONFIG_RUNTIME_STATIC_REQUIRE)
 

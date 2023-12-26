@@ -32,7 +32,7 @@ macro(recipe_agent_setup_options)
 
   if(NOT PROJECT_IS_TOP_LEVEL OR recipe_agent_PACKAGING_MAINTAINER_MODE)
     option(recipe_agent_ENABLE_IPO "Enable IPO/LTO" OFF)
-    option(recipe_agent_WARNINGS_AS_ERRORS "Treat Warnings As Errors" OFF)
+    option(recipe_agent_WARNINGS_AS_ERRORS "Treat Warnings As Errors" ON)
     option(recipe_agent_ENABLE_USER_LINKER "Enable user-selected linker" OFF)
     option(recipe_agent_ENABLE_SANITIZER_ADDRESS "Enable address sanitizer" OFF)
     option(recipe_agent_ENABLE_SANITIZER_LEAK "Enable leak sanitizer" OFF)

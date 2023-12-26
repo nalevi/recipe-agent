@@ -114,7 +114,7 @@ ENV CC=${CC:-"gcc"}
 ENV CXX=${CXX:-"g++"}
 
 # Include project
-#ADD . /workspaces/cpp_starter_project
-#WORKDIR /workspaces/cpp_starter_project
+ADD . /workspaces/recipe_agent
+WORKDIR /workspaces/recipe_agent
 
 CMD ["/bin/bash"]

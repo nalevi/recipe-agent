@@ -104,7 +104,7 @@ include(cmake/PackageProject.cmake)
 # we know we want to ship
 recipe_agent_package_project(
   TARGETS
-  intro
+  recipeagent
   recipe_agent_options
   recipe_agent_warnings
   # FIXME: this does not work! CK
