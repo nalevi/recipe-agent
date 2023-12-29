@@ -1,11 +1,13 @@
+add_subdirectory(tui)
 add_executable(recipeagent
         main.cpp
-        )
+)
 
 target_link_libraries(
         recipeagent
         PRIVATE recipe_agent::recipe_agent_options
-        recipe_agent::recipe_agent_warnings)
+        recipe_agent::recipe_agent_warnings
+        tui)
 
 target_link_system_libraries(
         recipeagent
