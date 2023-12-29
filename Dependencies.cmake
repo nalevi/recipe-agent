@@ -40,4 +40,12 @@ function(recipe_agent_setup_dependencies)
     cpmaddpackage("gh:lefticus/tools#update_build_system")
   endif()
 
+  #if(NOT TARGET Boost::hana)
+   # cpmaddpackage("gh:boostorg/hana@1.7.0")
+  #endif()
+
+  if(NOT TARGET SQLiteCpp)
+   cpmaddpackage("gh:SRombauts/sqlitecpp#fe6086c")
+  endif()
+
 endfunction()

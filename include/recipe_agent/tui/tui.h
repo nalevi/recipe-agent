@@ -19,20 +19,9 @@
 namespace recipeagent {
 
 namespace tui {
-  // TODO: Refactor this into indigent module.
-  const std::vector<std::string> INDIGENT_TYPES{
-    "SEED",
-    "FRUIT",
-    "VEGETABLE",
-    "DAIRY",
-    "MEAT",
-    "FAT",
-    "BREAD",
-    "SNACK",
-    "CONDIMENT",
-  };
 
-  /// @brief This object encapsulates the tab of the Indigents menu.
+  /// @brief This object encapsulates the tab of the Indigents menu with all its fields.
+  /// Also, keeps track of the selected fields.
   struct IndigentsMenu {
     IndigentsMenu();
 

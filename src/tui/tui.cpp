@@ -2,6 +2,7 @@
 // Created by Nagy Levente on 29/12/2023.
 //
 #include "recipe_agent/tui/tui.h"
+#include "recipe_agent/indigents/indigent.h"
 #include <ftxui/component/loop.hpp>
 
 #include <spdlog/spdlog.h>
@@ -18,7 +19,7 @@ namespace tui {
         "Get indigents by category",
       }),
       indigent_name_field(), indigent_name_input(ftxui::Input(&indigent_name_field, "name here")),
-      selected_indigent_type(0), indigent_type_dropdown(ftxui::Dropdown(&INDIGENT_TYPES, &selected_indigent_type)),
+      selected_indigent_type(0), indigent_type_dropdown(ftxui::Dropdown(&indigent::INDIGENT_TYPES, &selected_indigent_type)),
       indigent_add_button(ftxui::Button(
         "Add",
         [&] { spdlog::info("Indigent added!"); },
