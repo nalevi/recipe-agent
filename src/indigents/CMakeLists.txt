@@ -10,7 +10,8 @@ target_link_libraries(indigents PRIVATE recipe_agent_options recipe_agent_warnin
 target_link_system_libraries(indigents
         PRIVATE
         fmt::fmt
-        spdlog::spdlog)
+        spdlog::spdlog
+        SQLiteCpp)
 
 target_include_directories(indigents ${WARNING_GUARD} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>)

@@ -18,10 +18,8 @@ namespace indigent {
   {
   public:
     IndigentManager() = default;
-    explicit IndigentManager(const std::shared_ptr<db::RecipeDatabase> &mDb);
 
   private:
-    std::shared_ptr<db::RecipeDatabase> m_db;
   };
 
 }// namespace indigent
