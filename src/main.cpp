@@ -5,6 +5,7 @@
 #include "recipe_agent/tui/tui.h"
 
 #include <CLI/CLI.hpp>
+#include <SQLiteCpp/SQLiteCpp.h>
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
@@ -29,7 +30,8 @@ int main(int argc, char **argv)
       return EXIT_SUCCESS;
     }
 
-  recipeagent::tui::display_menu();
+    auto sp_database = std::make_shared<SQLite::Database>("recipe_agent.db3");
+    recipeagent::tui::display_menu();
 
   } catch (const std::exception &e) {
     spdlog::error("Unhandled exception in main: {}", e.what());

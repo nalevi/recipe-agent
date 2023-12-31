@@ -9,17 +9,32 @@
 
 #include "recipe_agent/recipe_db/recipe_db.h"
 
+#include "SQLiteCpp/SQLiteCpp.h"
+
+#include <memory>
+
 namespace recipeagent {
 namespace indigent {
-
-  namespace db = recipeagent::database;
 
   class IndigentManager
   {
   public:
-    IndigentManager() = default;
+    IndigentManager() = delete;
+
+    explicit IndigentManager(const std::shared_ptr<SQLite::Database> &db);
+
+    IndigentManager(const IndigentManager &other) = delete;
+    IndigentManager &operator=(const IndigentManager &other) = delete;
+
+    IndigentManager(IndigentManager &&other) noexcept = default;
+    IndigentManager &operator=(IndigentManager &&other) noexcept = default;
+
+    ~IndigentManager() = default;
+
+    bool add_indigent(Indigent indigent);
 
   private:
+    std::shared_ptr<SQLite::Database> m_db;
   };
 
 }// namespace indigent

@@ -13,12 +13,13 @@
 namespace recipeagent {
 namespace database {
 
-  template <typename... Args>
+  template<typename... Args>
   concept String = (std::is_same_v<std::remove_cvref_t<Args>, std::string> && ...);
 
   /// @brief This function is used to create the whole database from scratch.
   /// It will only create the database from scratch, when it is not present.
   [[maybe_unused]] static bool create_recipe_db(std::shared_ptr<SQLite::Database> db);
+
 
   /// @brief You can build any kind of SQL queries with this class and then execute it on a database.
   ///
@@ -61,41 +62,34 @@ namespace database {
     ///
     /// @param fields - The column names.
     /// @return the QueryBuilder itself as a reference.
-    QueryBuilder& select(std::string_view fields);
+    QueryBuilder &select(std::string_view columns) noexcept;
 
     /// @brief The table to be updated.
     ///
     /// @param table_name - The table name.
     /// @return Itself.
-    [[maybe_unused]] QueryBuilder& update(std::string_view table_name);
+    [[maybe_unused]] QueryBuilder &update(std::string_view table_name) noexcept;
 
-    [[maybe_unused]] QueryBuilder& insert(std::string_view fields);
+    [[maybe_unused]] QueryBuilder &insert(std::string_view table, std::string_view columns) noexcept;
+
+    // TODO: This is not really user-friendly.
+    [[maybe_unused]] QueryBuilder &values(std::string_view values) noexcept;
 
     /// @brief The columns to be updated.
     ///
-    /// @tparam Args - Must be std::string.
-    /// @param args - The column names.
-    template<String...Args>
-    [[maybe_unused]] QueryBuilder& set(Args... args);
+    [[maybe_unused]] QueryBuilder &set(std::string_view columns) noexcept;
 
-    [[maybe_unused]] QueryBuilder& delete_from(const std::string &table_name);
+    [[maybe_unused]] QueryBuilder &delete_from(std::string_view table_name) noexcept;
 
-    [[maybe_unused]] QueryBuilder& from(std::string_view table_name);
-    [[maybe_unused]] QueryBuilder& where(std::string_view query_str);
+    [[maybe_unused]] QueryBuilder &from(std::string_view table_name) noexcept;
+    [[maybe_unused]] QueryBuilder &where(std::string_view query_str) noexcept;
 
-    template<typename T>
-    [[maybe_unused]] QueryBuilder& bind(std::size_t index, T value);
+    template<typename T> [[maybe_unused]] QueryBuilder &bind(std::size_t index, T value);
 
-    template<typename T>
-    [[maybe_unused]] T get_column(const int index);
+    template<typename T> [[maybe_unused]] T get_column(const int index);
 
   private:
-    enum class Type {
-      SELECT,
-      INSERT,
-      UPDATE,
-      DELETE
-    };
+    enum class Type { SELECT, INSERT, UPDATE, DELETE };
 
     std::optional<SQLite::Statement> m_stmt;
     std::string m_stmt_str;
