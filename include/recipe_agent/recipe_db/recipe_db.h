@@ -16,6 +16,10 @@ namespace database {
   template <typename... Args>
   concept String = (std::is_same_v<std::remove_cvref_t<Args>, std::string> && ...);
 
+  /// @brief This function is used to create the whole database from scratch.
+  /// It will only create the database from scratch, when it is not present.
+  [[maybe_unused]] static bool create_recipe_db(std::shared_ptr<SQLite::Database> db);
+
   /// @brief You can build any kind of SQL queries with this class and then execute it on a database.
   ///
   /// @example
@@ -30,6 +34,7 @@ namespace database {
   /// // Get results
   /// Indigent element;
   /// query.get_column(1, element);
+  /// @endcode
   class QueryBuilder
   {
   public:
@@ -37,42 +42,52 @@ namespace database {
     explicit QueryBuilder(const std::shared_ptr<SQLite::Database> &db);
 
     /// @brief After assembling the statement, you can execute it on the database as one transaction.
-    void execute() const;
+    /// In case of a DQL (e.g.: SELECT) transaction, it can be recalled until it returns false, so
+    /// you can return the rows step-by-step.
+    /// @example
+    /// @code
+    /// // DQL
+    /// int breed_type{};
+    /// QueryBuilder q(db);
+    /// q.select("cat_breed").from("animals").where("name = ?").bind(1, "mikkamakka");
+    /// while(q.execute()) {
+    ///   breed_type = q.get_column(1);
+    /// }
+    /// @endcode
+    /// @return Returns true in case the execution  was successful or false, if not.
+    bool execute();
 
     /// @brief Add the column names in std::strings to be returned.
     ///
-    /// @tparam Args - Must be std::string.
-    /// @param args - The column names.
+    /// @param fields - The column names.
     /// @return the QueryBuilder itself as a reference.
-    template<String...Args>
-    QueryBuilder& select(Args... args);
+    QueryBuilder& select(std::string_view fields);
 
     /// @brief The table to be updated.
     ///
     /// @param table_name - The table name.
     /// @return Itself.
-    QueryBuilder& update(const std::string &table_name);
+    [[maybe_unused]] QueryBuilder& update(std::string_view table_name);
 
-    template<String...Args>
-    QueryBuilder& insert(Args... args);
+    [[maybe_unused]] QueryBuilder& insert(std::string_view fields);
 
     /// @brief The columns to be updated.
     ///
     /// @tparam Args - Must be std::string.
     /// @param args - The column names.
     template<String...Args>
-    QueryBuilder& set(Args... args);
+    [[maybe_unused]] QueryBuilder& set(Args... args);
 
-    QueryBuilder& delete_from(const std::string &table_name);
+    [[maybe_unused]] QueryBuilder& delete_from(const std::string &table_name);
 
-    QueryBuilder& from(const std::string &table_name);
-    QueryBuilder& where(const std::string &query_str);
-
-    template<typename T>
-    QueryBuilder& bind(std::size_t index, T value);
+    [[maybe_unused]] QueryBuilder& from(std::string_view table_name);
+    [[maybe_unused]] QueryBuilder& where(std::string_view query_str);
 
     template<typename T>
-    void get_column(const int index, T& column);
+    [[maybe_unused]] QueryBuilder& bind(std::size_t index, T value);
+
+    template<typename T>
+    [[maybe_unused]] T get_column(const int index);
 
   private:
     enum class Type {
