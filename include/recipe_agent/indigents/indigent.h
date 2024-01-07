@@ -15,8 +15,8 @@ namespace recipeagent {
 namespace indigent {
 
   /// @brief All the possible categories of the indigents in the database.
-  enum class IndigentType {
-    UNKNOWN,
+  enum class IndigentType : int {
+    UNKNOWN = 0,
     SEED,
     FRUIT,
     VEGETABLE,
@@ -79,7 +79,7 @@ namespace indigent {
     IndigentType type;
 
     Indigent();
-    Indigent(std::string_view name, IndigentType type);
+    Indigent(const std::string &name, IndigentType type);
   };
 
 }// namespace indigent

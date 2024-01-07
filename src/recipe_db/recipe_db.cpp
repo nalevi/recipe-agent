@@ -8,12 +8,12 @@
 
 #include <assert.h>
 #include <source_location>
-#include <sstream>
 
 namespace recipeagent {
 namespace database {
-  QueryBuilder::QueryBuilder(const std::shared_ptr<SQLite::Database> &db)
-    : m_stmt{}, m_stmt_str{}, m_type{ Type::SELECT }, m_db(db)
+
+  QueryBuilder::QueryBuilder(const std::shared_ptr<SQLite::Database> &db, const std::shared_ptr<spdlog::logger> &logger)
+    : m_logger{ logger }, m_stmt{}, m_stmt_str{}, m_type{ Type::SELECT }, m_db(db)
   {}
 
   bool QueryBuilder::execute()
@@ -26,18 +26,18 @@ namespace database {
           success = m_stmt->executeStep();
         } else {
           auto res = m_stmt->exec();
-          spdlog::info("[{}] {} rows updated", loc.function_name(), res);
+          m_logger->info("[{}] {} rows updated", loc.function_name(), res);
           success = true;
         }
       } else {
-        spdlog::error("[{}] Can not execute query, as it was not yet prepared!", loc.function_name());
+        m_logger->error("[{}] Can not execute query, as it was not yet prepared!", loc.function_name());
         success = false;
       }
     } catch (std::exception &ex) {
-      spdlog::error("[{}] Query execution failed: {}", loc.function_name(), ex.what());
+      m_logger->error("[{}] Query execution failed: {}", loc.function_name(), ex.what());
       success = false;
     } catch (...) {
-      spdlog::error("[{}] Unknown exception caught during query execution!", loc.function_name());
+      m_logger->error("[{}] Unknown exception caught during query execution!", loc.function_name());
       success = false;
     }
 
@@ -47,7 +47,7 @@ namespace database {
   QueryBuilder &QueryBuilder::select(std::string_view columns) noexcept
   {
     if (columns.empty()) {
-      spdlog::error("Input columns can not be empty!");
+      m_logger->error("Input columns can not be empty!");
       return *this;
     }
     // SELECT should be in the beginning of the statement
@@ -147,7 +147,7 @@ namespace database {
     return *this;
   }
 
-  template<typename T> QueryBuilder &QueryBuilder::bind(std::size_t index, T value)
+  template<typename T> QueryBuilder &QueryBuilder::bind(const int index, T value)
   {
     assert(!m_stmt_str.empty());
     auto loc = std::source_location::current();
@@ -156,13 +156,69 @@ namespace database {
       if (!m_stmt.has_value()) { m_stmt = SQLite::Statement(*m_db, m_stmt_str); }
       m_stmt->bind(index, value);
     } catch (std::exception &ex) {
-      spdlog::error("[{}] Bind failed: {}", loc.function_name(), ex.what());
+      m_logger->error("[{}] Bind failed: {}", loc.function_name(), ex.what());
     } catch (...) {
-      spdlog::error("[{}] Unknown exception caught during binding!", loc.function_name());
+      m_logger->error("[{}] Unknown exception caught during binding!", loc.function_name());
     }
 
     return *this;
   }
 
+  std::shared_ptr<SQLite::Database> create_db_connection(std::string_view db_name,
+    std::shared_ptr<spdlog::logger> logger)
+  {
+
+    std::shared_ptr<SQLite::Database> p_db = nullptr;
+    try {
+      p_db = std::make_shared<SQLite::Database>(db_name, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+
+      SQLite::Transaction transaction(*p_db);
+
+      p_db->exec(
+        "CREATE TABLE IF NOT EXISTS indigents ("
+        "indigent_id INTEGER PRIMARY KEY,"
+        "name TEXT NOT NULL UNIQUE,"
+        "type INTEGER NOT NULL)");
+
+      p_db->exec(
+        "CREATE TABLE IF NOT EXISTS recipes ("
+        "recipe_id INTEGER PRIMARY KEY,"
+        "name TEXT NOT NULL UNIQUE,"
+        "type INTEGER NOT NULL)");
+
+      p_db->exec(
+        "CREATE TABLE IF NOT EXISTS recipe_steps ("
+        "id INTEGER PRIMARY KEY,"
+        "recipe_id INTEGER,"
+        "description TEXT NOT NULL,"
+        "FOREIGN KEY (recipe_id)"
+        "  REFERENCES recipes (recipe_id)"
+        "   ON DELETE CASCADE"
+        "   ON UPDATE NO ACTION)");
+
+      p_db->exec(
+        "CREATE TABLE IF NOT EXISTS indigent_to_recipe ("
+        "recipe_id INTEGER,"
+        "indigent_id INTEGER,"
+        "PRIMARY KEY (recipe_id, indigent_id),"
+        "FOREIGN KEY (recipe_id)"
+        "  REFERENCES recipes (recipe_id)"
+        "   ON DELETE CASCADE"
+        "   ON UPDATE NO ACTION,"
+        "FOREIGN KEY (indigent_id)"
+        "  REFERENCES indigents (indigent_id)"
+        "    ON DELETE CASCADE"
+        "    ON UPDATE NO ACTION)");
+
+      transaction.commit();
+      logger->info("Tables created!");
+    } catch (std::exception &ex) {
+      logger->error("Could not build connection to database, exception: {} ", ex.what());
+    } catch (...) {
+      logger->error("Could not build connection to database, exiting ... ");
+      std::terminate();
+    }
+    return p_db;
+  }
 }// namespace database
 }// namespace recipeagent

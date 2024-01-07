@@ -31,7 +31,7 @@ namespace indigent {
 
     ~IndigentManager() = default;
 
-    bool add_indigent(Indigent indigent);
+    bool add_indigent(const Indigent &indigent);
 
   private:
     std::shared_ptr<SQLite::Database> m_db;

@@ -6,7 +6,7 @@
 
 namespace recipeagent {
 namespace indigent {
-  Indigent::Indigent(std::string_view name, IndigentType type) : name{ name }, type{ type } {}
-  Indigent::Indigent() : name{}, type{IndigentType::UNKNOWN} {}
+  Indigent::Indigent(const std::string &name, IndigentType type) : name{ name }, type{ type } {}
+  Indigent::Indigent() : name{}, type{ IndigentType::UNKNOWN } {}
 }// namespace indigent
 }// namespace recipeagent

@@ -8,6 +8,7 @@
 #include "SQLiteCpp/SQLiteCpp.h"
 
 #include <memory>
+#include <spdlog/logger.h>
 #include <type_traits>
 
 namespace recipeagent {
@@ -18,7 +19,10 @@ namespace database {
 
   /// @brief This function is used to create the whole database from scratch.
   /// It will only create the database from scratch, when it is not present.
-  [[maybe_unused]] static bool create_recipe_db(std::shared_ptr<SQLite::Database> db);
+  /// @param db_name The name of the database file.
+  /// @return A shared pointer to the database connection.
+  [[maybe_unused]] std::shared_ptr<SQLite::Database> create_db_connection(std::string_view db_name,
+    std::shared_ptr<spdlog::logger> logger);
 
 
   /// @brief You can build any kind of SQL queries with this class and then execute it on a database.
@@ -40,7 +44,7 @@ namespace database {
   {
   public:
     QueryBuilder() = delete;
-    explicit QueryBuilder(const std::shared_ptr<SQLite::Database> &db);
+    explicit QueryBuilder(const std::shared_ptr<SQLite::Database> &db, const std::shared_ptr<spdlog::logger> &logger);
 
     /// @brief After assembling the statement, you can execute it on the database as one transaction.
     /// In case of a DQL (e.g.: SELECT) transaction, it can be recalled until it returns false, so
@@ -84,13 +88,14 @@ namespace database {
     [[maybe_unused]] QueryBuilder &from(std::string_view table_name) noexcept;
     [[maybe_unused]] QueryBuilder &where(std::string_view query_str) noexcept;
 
-    template<typename T> [[maybe_unused]] QueryBuilder &bind(std::size_t index, T value);
+    template<typename T> [[maybe_unused]] QueryBuilder &bind(const int index, T value);
 
     template<typename T> [[maybe_unused]] T get_column(const int index);
 
   private:
     enum class Type { SELECT, INSERT, UPDATE, DELETE };
 
+    std::shared_ptr<spdlog::logger> m_logger;
     std::optional<SQLite::Statement> m_stmt;
     std::string m_stmt_str;
     Type m_type;

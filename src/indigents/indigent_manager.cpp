@@ -15,15 +15,18 @@ namespace indigent {
 
   IndigentManager::IndigentManager(const std::shared_ptr<SQLite::Database> &db) : m_db{ db } {}
 
-  bool IndigentManager::add_indigent(Indigent indigent)
+  bool IndigentManager::add_indigent(const Indigent &indigent)
   {
     auto loc = std::source_location::current();
     spdlog::info("[{}]", loc.function_name());
 
-    db::QueryBuilder query(m_db);
+    db::QueryBuilder query(m_db, nullptr);
 
-    query.insert("indigents", "name, type").values("?, ?").bind(1, indigent.name).bind(2, indigent.type);
-    
+    query.insert("indigents", "name, type")
+      .values("?, ?")
+      .bind(1, indigent.name)
+      .bind(2, static_cast<int>(indigent.type));
+
     return query.execute();
   }
 }// namespace indigent

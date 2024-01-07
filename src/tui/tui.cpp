@@ -3,6 +3,7 @@
 //
 #include "recipe_agent/tui/tui.h"
 #include "recipe_agent/indigents/indigent.h"
+#include "recipe_agent/recipe_db/recipe_db.h"
 #include <ftxui/component/loop.hpp>
 
 #include <spdlog/spdlog.h>
@@ -11,7 +12,7 @@
 namespace recipeagent {
 namespace tui {
 
-  IndigentsMenu::IndigentsMenu()
+  IndigentsMenu::IndigentsMenu(const std::shared_ptr<SQLite::Database> &db)
     : tab_indigents_entries({
         "Add indigent",
         "Get indigent",
@@ -19,17 +20,23 @@ namespace tui {
         "Get indigents by category",
       }),
       indigent_name_field(), indigent_name_input(ftxui::Input(&indigent_name_field, "name here")),
-      selected_indigent_type(0), indigent_type_dropdown(ftxui::Dropdown(&indigent::INDIGENT_TYPES, &selected_indigent_type)),
+      selected_indigent_type(0),
+      indigent_type_dropdown(ftxui::Dropdown(&indigent::INDIGENT_TYPES, &selected_indigent_type)),
       indigent_add_button(ftxui::Button(
         "Add",
-        [&] { spdlog::info("Indigent added!"); },
+        [&] {
+          indigent_manager->add_indigent(
+            { indigent_name_field, static_cast<indigent::IndigentType>(selected_indigent_type) });
+        },
         button_style())),
-      tab_indigents_selected(0)
+      tab_indigents_selected(0), indigent_manager(std::make_unique<recipeagent::indigent::IndigentManager>(db))
   {}
 
-  void display_menu()
+  void display_menu(const std::shared_ptr<spdlog::logger> &logger)
   {
     using namespace ftxui;
+
+    auto sp_database = recipeagent::database::create_db_connection("recipe_agent.db3", logger);
 
     std::vector<std::string> tab_values{
       "Indigents",
@@ -39,7 +46,7 @@ namespace tui {
     int tab_selected = 0;
     auto tab_main_menu = Menu(&tab_values, &tab_selected);
 
-    auto indigents_menu = IndigentsMenu{};
+    auto indigents_menu = IndigentsMenu{ sp_database };
     auto tab_indigents_menu = display_indigents_menu(indigents_menu);
     auto add_indigents_component = create_indigents_component(indigents_menu);
 
